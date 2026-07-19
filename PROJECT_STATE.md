@@ -1,10 +1,13 @@
 # Project State
 
-**Last updated:** Module 0 complete (environment scaffold). Module 1 not yet
-started.
-**Next up:** Module 1 — How LLMs Actually Work (no code, no live API call by
-design — see the outline's Module 1 entry and `teaching-style-prompt.md`'s
-"When there's nothing runnable yet").
+**Last updated:** Module 1 complete (How LLMs Actually Work — no code by
+design; tagged `module-1`). Module 2 (first live API call) is in progress:
+`src/agent.ts` and `src/index.ts` are written (Anthropic SDK added as a real
+dependency) but not yet run/verified by the learner — deliberately left
+uncommitted until the live checkpoint actually runs clean, per the repo's
+practice of only committing verified work.
+**Next up:** finish Module 2.1 (run the live checkpoint, confirm real output),
+then 2.2 (conversation history) and 2.3 (the full response object).
 
 ## Learner profile
 
@@ -105,11 +108,13 @@ Not three separate repos — see the outline's "Repo structure" note for why.
 - `.nvmrc` — `24.18.0`, the exact Node patch used to build this repo.
 - `pnpm-lock.yaml` — committed lockfile.
 - `src/index.ts` — exists, currently empty. The permanent thin entry point; stays this way until Module 2.1 wires it to `agent.ts`.
-- `lessons/` — exists, empty except a `.gitkeep` (no lesson files yet — Module 1 has no code so its lesson is plain-language + prediction exercises per the outline; Module 0 itself doesn't get a build-teaching lesson since the learner intake + scaffold above happened as this session's direct work, not a taught felt-gap sequence — see Open gaps below for the one thing this leaves unwritten).
+- `lessons/module-0/lesson-0.md` — the environment-scaffold module, one consolidated file (routine/mechanical, no per-sub-item split).
+- `lessons/module-1/lesson-1.1.md` through `lesson-1.5.md` — How LLMs Actually Work: no code (deliberate, per the outline), one file per the outline's own sub-lesson numbering (per `AGENTS.md`'s "one `lesson-N.M.md` per sub-lesson, always, from Module 1 onward" rule — corrected mid-build after an initial pass wrongly bunched all five sections into one `lesson-1.md`). Each file is full textbook depth regardless of how fast the live pace moved: 1.1 sampling/temperature, 1.2 tokens and the context window's quadratic-attention-cost limit (the section the diagnostic showed as a real gap — deepest section in the module), 1.3 the API mental model, 1.4 model tier tradeoffs, 1.5 the LangChain connection (module-closing synthesis).
 - `README.md` — human-facing, portfolio-readable. Distinct from this file:
   PROJECT_STATE.md is written for the next agent, README.md is written for a
-  person. Keep both current; don't let one substitute for the other. **Still
-  has its "Start here" bootstrap section** — not yet deleted (see Open gaps).
+  person. Keep both current; don't let one substitute for the other. Its
+  "Start here" bootstrap section was deleted at Module 0, once the scaffold
+  was actually built.
 
 Verified working at Module 0 (`pnpm typecheck`, `pnpm lint`, `pnpm format:check` all pass clean; `node src/index.ts` runs with no errors against the empty file).
 
@@ -125,4 +130,17 @@ its 0.6 note — so it's now the documented default, not a per-repo deviation.)
 
 ## Handoff note to next agent
 
-Module 0 is fully complete and tagged (`module-0`): scaffold built and verified (`pnpm install`/`lint`/`typecheck`/`format:check` all pass; Node runs `src/index.ts` directly), `lessons/module-0/lesson-0.md` written by the lesson-writer subagent, README's "Start here" section deleted. Next up is Module 1 (How LLMs Actually Work) — it has no code and no live API call by design (see the outline's Module 1 entry); teach it via plain-language explanation + estimation/prediction exercises per `teaching-style-prompt.md`'s "When there's nothing runnable yet," closing each section with a direct question rather than a run-this checkpoint, and don't force a fabricated run. Offer the learner the diagnostic-vs-move-fast choice per "Probe, then route" before starting.
+Modules 0 and 1 are complete and tagged (`module-0`, `module-1`). Module 2 is
+in progress but **not yet tagged or fully committed**: `src/agent.ts` (a
+module-level `messages` array + `sendMessage`, the forward-compatible seed
+Module 2.2/2.3/3/4 all extend in place) and `src/index.ts` (wired to call it)
+are written and typecheck/lint clean, `@anthropic-ai/sdk` is a real dependency
+now — but the learner hasn't yet run the live checkpoint
+(`node --env-file=.env src/index.ts` against their own `.env`) to confirm a
+real API response comes back. Don't tag `module-2` or commit this code until
+that live run is confirmed working — this repo's practice is to commit only
+verified work, and an API call is the one thing that can't be verified by
+typecheck/lint alone. **Watch for this specific failure mode again:** this
+session already skipped writing Module 1's lesson before starting Module 2's
+code and had to catch it after the fact — don't repeat that; the lesson for a
+module must exist before the next module's build work starts, not after.
