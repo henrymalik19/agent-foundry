@@ -97,3 +97,80 @@ one leaking into the other.
 loop, and approval gates to this same `agent.ts` — the first `tool_use`
 content blocks will actually appear in the array `sendMessage` already logs.
 
+## Module 3 — Tool Use (through 3.4)
+
+The agent can now act, not just talk and remember — with a real approval
+gate standing between a model's request and anything that actually mutates
+state.
+
+```
+agent-foundry/
+├── src/
+│   ├── agent.ts
+│   │   ├── tools: Anthropic.Tool[]           (3.1 schema, 3.2 real tools:
+│   │   │                                      get_current_time, calculate;
+│   │   │                                      3.4 adds remember_fact)
+│   │   ├── toolCapabilities: Record<string,
+│   │   │     'read' | 'mutate'>              (3.4 — a separate map from the
+│   │   │                                      tools array; capability is a
+│   │   │                                      property of the tool, decided
+│   │   │                                      once, not judged per call)
+│   │   ├── rememberedFacts: string[]          (3.4 — trivial in-memory state
+│   │   │                                      for the one demo mutating tool)
+│   │   ├── toolHandlers: Record<string,
+│   │   │     ToolHandler>                    (3.3 — real functions behind
+│   │   │                                      every schema)
+│   │   ├── export type ApprovalRequester =
+│   │   │     (toolName, input) => Promise<boolean>  (3.4 — agent.ts declares
+│   │   │                                      only the shape; never creates
+│   │   │                                      its own readline.Interface)
+│   │   ├── sendMessage(messages)              (unchanged shape from Module 2
+│   │   │                                      — one API call, now with
+│   │   │                                      tools attached)
+│   │   └── export runAgent(messages, userInput, requestApproval)  (3.3 —
+│   │       the execution loop, new this module)
+│   │       ├── pushes the user turn
+│   │       ├── while (response.stop_reason === 'tool_use'):
+│   │       │   ├── filters tool_use blocks (a turn can hold more than one)
+│   │       │   ├── gates mutating calls through the injected
+│   │       │   │   requestApproval before running the handler — denial
+│   │       │   │   returns an honest tool_result, never a thrown error or
+│   │       │   │   silence
+│   │       │   ├── runs approved/read handlers via Promise.all
+│   │       │   ├── pushes tool_results keyed by tool_use_id
+│   │       │   └── calls sendMessage again
+│   │       └── returns { reply, messages } once stop_reason isn't tool_use
+│   └── repl.ts
+│       ├── requestApproval(rl, toolName, input)  (3.4 — reuses the CLI's
+│       │     one readline.Interface; fails closed if rl.question throws)
+│       └── passes it into runAgent as a closure over the one rl it owns
+└── (rest of scaffold unchanged since Module 2)
+```
+
+**What you can show now:** `node --env-file=.env src/index.ts`, then type a
+message that needs both a read-only tool and a mutating one — e.g. "what
+time is it, and please remember that my favorite color is teal." Both tools
+get requested in one turn; `get_current_time` runs immediately with no
+prompt; `remember_fact` genuinely pauses the CLI with a real
+`(y/n)` prompt, and the final answer honestly reflects whichever way that
+prompt was answered — including a real "I wasn't able to remember that"
+when denied, not a false claim of success.
+
+**Known, named, not fixed:** two mutating tool calls in the same turn would
+race on the one shared `readline.Interface` — doesn't surface in today's
+demo scenario (only ever one mutating call per turn), and Module 11.3's
+Discord-based approval mechanism won't have this problem at all once it
+exists.
+
+**Module 3.5** compared this design to Claude Code's actual tool permission
+system — no code change (a comparison lesson): auto-allowed reads match,
+but a configurable per-project gate, per-command gradation inside a single
+tool, and session-wide modes are all real axes the binary `toolCapabilities`
+map doesn't have. Confirmed as the right simplification for now, with a
+real, already-planned place it gets revisited (Module 4.3's least-privilege
+tiers), not an invented one. Module 3 is complete and tagged (`module-3`).
+
+**Next piece to land here:** Module 4 is where this same gate starts
+protecting real file writes and shell commands instead of a toy
+`remember_fact`, and where the binary classification grows into real
+least-privilege tiers (4.3).
