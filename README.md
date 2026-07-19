@@ -1,32 +1,5 @@
 # Agent Foundry
 
-> **This is a template.** Click "Use this template" above to create your own
-> copy — don't build Module 0 (or anything else) directly into this repo.
-
-> ## 🚦 Start here — first session only
->
-> This is the starting commit of the Agent Foundry course build: the plan, the
-> rules, and the process docs, but **none of Module 0's output yet**. If you're an
-> agent (or a human driving one) starting the build:
->
-> 1. Read `AGENTS.md` (auto-loaded by most tools), then `docs/course-outline.md`
->    and `docs/teaching-style-prompt.md`.
-> 2. **Run the learner intake first** — `PROJECT_STATE.md`'s "Learner profile"
->    section is a set of questions to ask in chat, not a fact to assume. Get
->    real answers and write them in before touching any code; don't default to
->    an experienced-engineer fast track without asking.
-> 3. Build **Module 0** exactly as the outline specifies: environment setup
->    (Node + `.nvmrc`, pnpm via Corepack, TypeScript + `tsconfig`, secrets +
->    `.env`, ESLint + Prettier), `git init` + `.gitignore`, fill in the rest of
->    `PROJECT_STATE.md`, and add a `lessons/` folder. **Module 0 does not call
->    the API** — no smoke-test script, no billed request. The first real API
->    call is Module 2.1's lesson, not a pre-lesson infra check.
-> 4. Then **delete this "Start here" section** — Module 0 is done, and the rest of
->    this README is the real project doc.
->
-> Every session after the first uses `docs/session-prompts.md`, not this section.
-
-
 A TypeScript course that builds real multi-agent AI systems from first
 principles — tool use, memory, RAG, a specialist fleet, an orchestrator, an
 eval harness, background jobs, and a production deployment — to a
