@@ -1,7 +1,9 @@
 import { createInterface, type Interface } from 'node:readline/promises';
-import type Anthropic from '@anthropic-ai/sdk';
+import Anthropic from '@anthropic-ai/sdk';
 import chalk from 'chalk';
-import { runAgent } from './agent.ts';
+import { runAgent, type Mode } from './agent.ts';
+
+const MODES: Mode[] = ['default', 'plan', 'accept-all'];
 
 async function requestApproval(
   rl: Interface,
@@ -29,27 +31,48 @@ export async function runRepl(): Promise<void> {
   );
 
   let messages: Anthropic.MessageParam[] = [];
+  let mode: Mode = 'default';
+  const client = new Anthropic();
   const rl = createInterface({ input: process.stdin, output: process.stdout });
 
   while (true) {
     let userInput: string;
     try {
-      userInput = await rl.question(chalk.green('you › '));
+      const promptLabel = mode === 'default' ? 'you › ' : `you (${mode}) › `;
+      userInput = await rl.question(chalk.green(promptLabel));
     } catch {
       // stdin closed (e.g. piped input reached EOF) - not a live terminal,
       // exit gracefully instead of crashing.
       break;
     }
 
-    if (
-      userInput.trim().toLowerCase() === 'exit' ||
-      userInput.trim().toLowerCase() === 'quit'
-    ) {
+    const trimmed = userInput.trim();
+
+    if (trimmed.toLowerCase() === 'exit' || trimmed.toLowerCase() === 'quit') {
       break;
     }
 
-    const result = await runAgent(messages, userInput, (toolName, input) =>
-      requestApproval(rl, toolName, input),
+    if (trimmed === '/mode' || trimmed.startsWith('/mode ')) {
+      const arg = trimmed.slice('/mode'.length).trim();
+      if (arg === '') {
+        console.log(chalk.gray(`Current mode: ${mode}`));
+      } else if (arg === 'default' || arg === 'plan' || arg === 'accept-all') {
+        mode = arg;
+        console.log(chalk.gray(`Mode set to: ${mode}`));
+      } else {
+        console.log(
+          chalk.gray(`Unknown mode "${arg}". Valid modes: ${MODES.join(', ')}.`),
+        );
+      }
+      continue;
+    }
+
+    const result = await runAgent(
+      client,
+      messages,
+      userInput,
+      (toolName, input) => requestApproval(rl, toolName, input),
+      mode,
     );
     messages = result.messages;
     console.log(chalk.cyan('agent ›'), result.reply, '\n');

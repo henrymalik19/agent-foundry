@@ -10,13 +10,14 @@ full design, and continuity between sessions is carried by `PROJECT_STATE.md`
 
 ## Projects
 
-- **Code assistant** (`apps/code-assistant`) — RAG-powered multi-agent code
-  assistant, the spine of the course. _Status: not yet built (starts Module 4)._
+- **Code assistant** (`src/agent.ts`, moving to `apps/code-assistant` once
+  Module 15.0 splits the repo into a workspace) — RAG-powered multi-agent
+  code assistant, the spine of the course.
 - **Email agent** (`apps/email-agent`) — email triage agent that consumes the
-  shared core extracted from Project 1. _Status: not yet built (starts Module 15)._
+  shared core extracted from Project 1.
 - **Research agent** (`apps/research-agent`) — dynamic research agent that
   extends the shared core with a specialist-template registry, proving it
-  generalizes to an open-ended task shape. _Status: not yet built (starts Module 16)._
+  generalizes to an open-ended task shape.
 
 ## Running it
 
@@ -32,13 +33,13 @@ cp .env.example .env          # then fill in ANTHROPIC_API_KEY
 
 pnpm lint                     # ESLint (flat config)
 pnpm typecheck                # tsc --noEmit
-pnpm test                     # node --test (no tests yet — first real tests land in Module 4)
+pnpm test                     # node --test
 pnpm format                   # Prettier
 ```
 
 Node 24 runs TypeScript directly (no build step) — `node --env-file=.env
 <file>.ts`. Module 0 doesn't call the API itself; the first real, billed Claude
-request is Module 2's `src/agent.ts`, once that exists.
+request happens in `src/agent.ts`, from Module 2 onward.
 
 Set a spending cap / budget alert on the Anthropic console (and any hosting
 provider) before making API calls.
