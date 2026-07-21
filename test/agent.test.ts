@@ -68,10 +68,10 @@ function countingApproval(answer: boolean): {
   return { requester, calls };
 }
 
-const SCRATCH_PATH = 'scratch/test-write.txt';
+const SCRATCH_PATH = 'scratch/test/test-write.txt';
 
 after(() => {
-  rmSync('scratch', { recursive: true, force: true });
+  rmSync('scratch/test', { recursive: true, force: true });
 });
 
 describe('assertInBounds', () => {

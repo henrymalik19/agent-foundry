@@ -130,7 +130,12 @@ is expected; most modules are not).
   artifacts, or secrets files not already covered, add them before
   committing. Nobody revisits this file on a schedule; catching it in the
   session that introduces the new pattern is the only time it reliably
-  happens.
+  happens. **`scratch/` is a standing exception to that per-session-discovery
+  pattern:** it's used throughout the course for throwaway checkpoint demos
+  and test fixtures (e.g. the approval-gate tests' scratch files), not tied
+  to any one module's newly-introduced output, so it's gitignored from
+  Module 0's own initial commit rather than added piecemeal wherever it
+  first happens to get used.
 - Same pattern for `docker-compose.yml`, `.dockerignore`, and
   `.prettierignore`: created once, extended whenever something new needs
   excluding, never worked around with a one-off command instead. Keep
@@ -140,6 +145,14 @@ is expected; most modules are not).
 - **No AI co-author trailers in commit messages** (`Co-Authored-By: Claude
   ...` or equivalent). Every commit in this repo is authored as the
   maintainer's own work, regardless of which tool wrote the diff.
+- **Anything meant to be copied goes in a fenced code block, not bold or
+  plain prose** — a shell command, a prompt to type into the running agent,
+  a config value, a file path being handed over for the human to paste
+  somewhere. This holds in any agent session working in this repo, not only
+  inside lesson delivery (`docs/teaching-style-prompt.md`'s own version of
+  this rule covers the lesson-writing case specifically); it's a general
+  convention here because only a fenced block renders with a one-click copy
+  affordance on the chat surfaces this course gets built and taught through.
 
 ## Before ending a session
 

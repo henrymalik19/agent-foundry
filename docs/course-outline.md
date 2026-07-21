@@ -29,7 +29,6 @@ full design rationale; this block governs sequencing and delivery):
 
 | Hardening | Home |
 | --- | --- |
-| Prompt-injection defense | 5.5 |
 | Adversarial test cases | 10.2 |
 | Failure handling, circuit breakers | 13 |
 | API retry/backoff on transient errors | named at 4.6, closed at 13.10 |
