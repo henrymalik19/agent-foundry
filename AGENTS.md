@@ -166,17 +166,24 @@ silently skipped. For Claude Code, the concrete implementation lives at
 `.claude/agents/lesson-writer.md` (a Read/Write-only agent); another tool
 wires the same role its own way.
 
-**Hard gate: no module is "complete" without its lesson file(s).** Before
-tagging a module (`git tag module-N`) or starting the next module's work,
-confirm `lessons/module-N/` has at least one real `lesson-N.M.md` written by
-the lesson-writer subagent for this session's live work. Committing code and
-updating `PROJECT_STATE.md` is not enough on its own — a module whose code is
-tagged but whose lesson was never written is a real gap, not a deferred nice
-to have, and it's easy to drop silently in the rush to close out a session.
-If a session genuinely runs out of room to write the lesson, don't tag the
-module — leave it, and say so plainly in `PROJECT_STATE.md`'s handoff note
-("code is done, lesson-N.M.md still needs writing") rather than tagging a
-module that's actually incomplete.
+**Hard gate: no module is "complete" without its lesson file(s) — and the
+template has to be in sync before the tag is real.** Before tagging a module
+(`git tag module-N`) or starting the next module's work, confirm three
+things together, not just the first: `lessons/module-N/` has at least one
+real `lesson-N.M.md` written by the lesson-writer subagent for this
+session's live work; `../agent-foundry-template/lessons/module-N/` has been
+synced to match (see "Syncing to the template repo" below); and, if this
+session edited any of `AGENTS.md`, `CLAUDE.md`, `docs/course-outline.md`, or
+`docs/teaching-style-prompt.md`, that edit made it into the template's copy
+too. Committing code and updating `PROJECT_STATE.md` is not enough on its
+own — a module whose lesson was never written, whose lesson exists here but
+never reached the template, or whose doc edit never reached the template, is
+a real gap in each case, not a deferred nice to have, and all three are easy
+to drop silently in the rush to close out a session. If a session genuinely
+runs out of room to finish any of the three, don't tag the module — leave
+it, and say so plainly in `PROJECT_STATE.md`'s handoff note (name which of
+the three is still open) rather than tagging a module that's actually
+incomplete.
 
 **One `lesson-N.M.md` per sub-lesson, always, from Module 1 onward.** Match
 `docs/course-outline.md`'s own numbering exactly — never collapse several
@@ -293,23 +300,45 @@ out an earlier tag." **Scope this narrowly, though:**
   switch to patching forward at the tip with a clear note instead, the way
   a normal published project would — don't keep rewriting shipped history.
 
-**Syncing a shared-doc change to the template repo.** Whenever a genuinely
-reusable fact or process rule gets discovered live in this repo — something
-that belongs in `AGENTS.md`, `CLAUDE.md`, `docs/course-outline.md`, or
-`docs/teaching-style-prompt.md`, not just this repo's own live state — edit
-the doc here, edit the identical spot in `../agent-foundry-template`,
-confirm the two files diff-clean, fold the template's edit into its single
-root commit (`git reset --soft <root> && git commit --amend`), then rewrite
-this repo's own root commit to match (`git rebase -i --root`, `edit` the
-root, copy the template's file in, `git commit --amend`, `git rebase
---continue`) — stashing whatever module work is mid-flight first, popping
-it back after. Push both with `--force-with-lease`. This keeps the two
-repos' shared docs byte-identical at the root commit, per the standing rule
-that this repo's root commit should always match the template's.
-`PROJECT_STATE.md` and `docs/architecture-map.md` are the exception — this
-repo's own live build state, not shared governance docs; the template's
-`PROJECT_STATE.md` stays its own minimal pre-Module-0 starter and has no
-`architecture-map.md` at all yet.
+**Syncing to the template repo — two different mechanisms for two different
+kinds of content, both required before the hard gate above is satisfied.**
+Don't conflate them; the content has genuinely different shapes and syncs by
+genuinely different mechanics.
+
+**1. Shared-doc sync** (`AGENTS.md`, `CLAUDE.md`, `docs/course-outline.md`,
+`docs/teaching-style-prompt.md` — a fixed set of governance docs that has to
+read identically in both repos). Whenever a genuinely reusable fact or
+process rule gets discovered live in this repo — something that belongs in
+one of these four, not just this repo's own live state — edit the doc here
+(a normal commit, same as any other change), then edit the identical spot in
+`../agent-foundry-template`, confirm the two files diff-clean, and fold the
+template's edit into its single root commit (`git reset --soft <root> && git
+commit --amend`) — that's the only commit the template has, so this keeps
+its copy always current. Push the template with `--force-with-lease`;
+agent-foundry's own copy just lives at HEAD like any other file — no rebase
+or re-tagging needed on this side. (Earlier versions of this rule also
+required rewriting agent-foundry's own root commit to match on every sync;
+that half was dropped — it was never actually followed in practice, and
+forcing a `rebase --root` plus a re-tag of every existing module tag for an
+ordinary doc edit was more disruptive than the invariant was worth. The only
+hard requirement is that the template's root commit reflects the current
+text.) `PROJECT_STATE.md` and `docs/architecture-map.md` are the
+exception — this repo's own live build state, not shared governance docs;
+the template's `PROJECT_STATE.md` stays its own minimal pre-Module-0 starter
+and has no `architecture-map.md` at all yet.
+
+**2. Lesson sync** (`lessons/module-N/` — content that accumulates one
+module at a time and was never meant to stay pinned to a single commit).
+Once `lessons/module-N/` passes the hard gate above, copy it verbatim into
+the template's `lessons/module-N/`, commit it there as its own normal commit
+(not folded into the template's root — this is additive content, not a
+fixed file set), and tag it `lessons-module-N` — deliberately not
+`module-N`: the template has no code behind that tag the way this repo's
+`module-N` does, and reusing the name would imply a parity between the two
+repos' tags that doesn't exist. This is a much lighter operation than the
+shared-doc sync above: a normal commit landing on top of the template's
+existing history, no root rewrite, no re-tagging anything that already
+exists.
 
 **Clean up anything superseded right before committing, not after.** If a
 change you're about to commit makes an earlier edit in the same working
